@@ -664,10 +664,15 @@ document.getElementById("gradeLevel").addEventListener("change", updateUnitOptio
 document.getElementById("teacherSelect").addEventListener("change", updateUnitOptions);
 
 function saveFormToLocalStorage() {
-  generateDateKey(); // Anahtarı oluştur
+  if (Object.keys(teachers).length === 0) {
+    Swal.fire("Uyarı", "Öğretmen verisi henüz yüklenmedi. Lütfen birkaç saniye sonra tekrar deneyin.", "warning");
+    return;
+  }
+
+  generateDateKey(); // currentDateKey üretilir
 
   if (!currentDateKey) {
-    Swal.fire("Hata", "Anahtar oluşturulamadı. Tüm alanların dolu olduğundan emin olun.", "error");
+    Swal.fire("Hata", "Kayıt anahtarı oluşturulamadı. Lütfen tüm alanların dolu olduğundan emin olun.", "error");
     return;
   }
 
@@ -684,7 +689,6 @@ function saveFormToLocalStorage() {
     }))
   };
 
-  // Firebase'e kaydet
   database.ref('forms/' + currentDateKey).set(formData)
     .then(() => {
       Swal.fire("Kaydedildi", `"${currentDateKey}" Firebase'e başarıyla kaydedildi.`, "success");
@@ -694,6 +698,7 @@ function saveFormToLocalStorage() {
       Swal.fire("Hata", "Veri Firebase'e kaydedilemedi.", "error");
     });
 }
+
 
 
 // 🔑 Güncelleme için global değişken tanımı
@@ -920,10 +925,18 @@ function generateDateKey() {
   const selectedClass = document.getElementById("classSelect").value;
   const homework = document.getElementById("homework").value.trim();
   const teacherKey = document.getElementById("teacherSelect").value;
-  const subject = teachers[teacherKey]?.subject || teacherKey;
+
+  const subject = teachers[teacherKey]?.subject || "";
+
+  // ❗ Eksik veri varsa key oluşturulmasın
+  if (!subject || !date || !selectedClass || !homework) {
+    currentDateKey = "";
+    return;
+  }
 
   currentDateKey = `${subject} - ${date} - ${selectedClass} - ${homework}`;
 }
+
 
 
 function openStudentModal(studentName) {
