@@ -706,7 +706,6 @@ let currentFormKey = null; // Yüklenen kayıt anahtarı
 let currentDateKey = "";   // Şu anki formdan oluşturulan anahtar
 
 function loadFormFromLocalStorage() {
-  // Firebase'den tüm form anahtarlarını çek
   database.ref('forms').once('value')
     .then(snapshot => {
       const data = snapshot.val();
@@ -718,19 +717,18 @@ function loadFormFromLocalStorage() {
           text: "Firebase'de kayıtlı hiçbir form yok.",
           confirmButtonText: "Tamam",
           customClass: {
-    popup: 'wide-popup',
-    input: 'centered-select'
-  },
-  inputAttributes: {
-    style: 'font-size:15px;'
-  }
-});
+            popup: 'wide-popup',
+            input: 'centered-select'
+          },
+          inputAttributes: {
+            style: 'font-size:15px;'
+          }
+        });
         return;
       }
 
       const keys = Object.keys(data);
 
-      // Swal ile kullanıcıya seçim ekranı göster
       Swal.fire({
         title: "Yüklenecek kayıt seçin",
         input: "select",
@@ -743,19 +741,19 @@ function loadFormFromLocalStorage() {
         confirmButtonText: "Yükle",
         cancelButtonText: "İptal",
         customClass: {
-    popup: 'wide-popup',
-    input: 'centered-select'
-  },
-  inputAttributes: {
-    style: 'font-size:15px;'
-  }
-}).then(result => {
+          popup: 'wide-popup',
+          input: 'centered-select'
+        },
+        inputAttributes: {
+          style: 'font-size:15px;'
+        }
+      }).then(result => {
         if (result.isConfirmed) {
           const selectedKey = result.value;
-          currentFormKey = selectedKey;  // Güncel anahtar olarak ata
+          currentFormKey = selectedKey;
           const formData = data[selectedKey];
 
-          // Alanları doldur
+          // Form alanlarını doldur
           document.getElementById("date").value = formData.date;
           document.getElementById("classSelect").value = formData.class;
           document.getElementById("gradeLevel").value = formData.grade;
@@ -770,15 +768,33 @@ function loadFormFromLocalStorage() {
 
           document.getElementById("classSelect").dispatchEvent(new Event("change"));
 
+          // Öğrenci durumlarını isme göre eşleştir
           setTimeout(() => {
             const cards = document.querySelectorAll(".student-card");
-            formData.students.forEach((savedStudent, index) => {
-              const card = cards[index];
-              if (card) {
-                card.querySelector(".student-status").value = savedStudent.status;
+            const notFoundStudents = [];
+
+            formData.students.forEach(savedStudent => {
+              const matchingCard = Array.from(cards).find(card => {
+                const name = card.querySelector(".student-name").innerText.replace("▪ ", "");
+                return name === savedStudent.name;
+              });
+
+              if (matchingCard) {
+                matchingCard.querySelector(".student-status").value = savedStudent.status;
+              } else {
+                notFoundStudents.push(savedStudent.name);
               }
             });
-          }, 100);
+
+            if (notFoundStudents.length > 0) {
+              Swal.fire({
+                icon: "info",
+                title: "Listede olmayan öğrenciler",
+                html: `<b>${notFoundStudents.length}</b> öğrenci listede bulunamadı:<br><br><code>${notFoundStudents.join("<br>")}</code>`,
+                customClass: { popup: 'wide-popup' }
+              });
+            }
+          }, 150);
         }
       });
     })
@@ -787,6 +803,7 @@ function loadFormFromLocalStorage() {
       Swal.fire("Hata", "Veriler yüklenirken bir sorun oluştu.", "error");
     });
 }
+
 
 
 function clearLocalStorageForm() {
