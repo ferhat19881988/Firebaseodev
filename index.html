@@ -300,13 +300,7 @@ transition: all 0.3s ease;
 <input id="date" type="date"/>
 <label for="teacherSelect">Öğretmen:</label>
 <select id="teacherSelect">
-<option value="">-- Öğretmen Seçin --</option>
-<option value="fen">Ferhat Bey (Fen Bilimleri)</option>
-<option value="matematik">Hüseyin Bey (Matematik)</option>
-<option value="sosyal">Gülçin Hanım (Sosyal Bilgiler)</option>
-<option value="turkce">Müşerref Hanım (Türkçe)</option>
-<option value="ingilizce">Sedef Hanım (İngilizce)</option>
-<option value="matematik">Büşra Hanım (Matematik)</option>
+  <option value="">-- Öğretmen Seçin --</option>
 </select>
 <!-- Eklenen: Sınıf düzeyi ve ünite seçimi -->
 <div style="border-top: 2px dashed #ffa94d; margin: 15px 0; padding: 10px 0;">
@@ -327,10 +321,7 @@ transition: all 0.3s ease;
 <textarea id="homework" rows="2"></textarea>
 <label for="classSelect">Sınıf Seçin:</label>
 <select id="classSelect">
-<option value="">-- Sınıf Seçin --</option>
-<option value="8A">8A</option>
-<option value="8B">8B</option>
-<option value="8C">8C</option>
+  <option value="">-- Sınıf Seçin --</option>
 </select>
 <div class="student-grid" id="students"></div>
 <div class="action-buttons">
@@ -344,27 +335,85 @@ transition: all 0.3s ease;
 </div>
 <div id="print-area" style="display:none;"></div>
 <script>
-    const studentData = {
-      '8A': ["ENSAR AYGÜN","MAHMUT EGE AYHAN","KAYRA BAŞAR","İPEK BÜBER","ELBİM HİKMET DEMİREL","NİDA CEYLİN DOĞAN","CENGİZ TUNÇ IŞIK","ALİ KAAN KALE","DENİZ KARAÇAYIR","ASYA KAZAK","MÜJDAT KİLİMCİ","BERRİN PAMUKÇU","ASYA TUNÇ","NEVA TUNÇ","EYMEN VURAL","TOPRAK YILMAZ","YAĞIZ DOĞAÇ ÖZKAYNAK","ALİ NEZİH ÖZTÜRK","GÜNEY ÖZYURTERİ"],
-      '8B': ["AYBERK AKGÜL","NECDET AHMET ALAŞAN","ONURAY ALBAN","BUĞLEM CESUR","AHMET GÖKMEN","ESMA GÖKTEPE","ALMİLA GÜRÇİÇEK","EFE KALELİ","BEREN KURT","EMİR CİHAN KURT","YÜSRA KÜÇÜKSOKU","KUZEY EROL MUTLU","GÜLSİMA OYAMAK","NAR TUTAR","SALİHA BUSE TÜMTÜRK","EREN ALP YAĞLI","ÖZÜM YILMAZ","EZGİ ZORBAŞ","ECRİN ÖĞMEN"],
-      '8C': ["YAĞMUR GÜLEN ALA","SELEN ATABEY","BETÜL İLKİM AYDIN","İREM BAĞCI","KAAN GÖKTEPE","SERENAY GÖNEN","FURKAN AHMET GÖNENÇ","ADA HELVACIOĞLU","DAMLA HELVACIOĞLU","EGEMEN IŞIK","AHMET ALİ TUNA","DAMLA UZUN","EGEHAN YALINIZ","DİLARA ELA YENİGÜL","REYHAN YILDIRIM","İLKİN ECRİN YILDIRIM"]
-    };
+  const teachers = {};
 
-const teachers = {
-  fen: { name: "Ferhat Bey", subject: "Fen Bilimleri" },
-  matematik: { name: "Hüseyin Bey", subject: "Matematik" },
-  sosyal: { name: "Gülçin Hanım", subject: "Sosyal Bilgiler" },
-  turkce: { name: "Müşerref Hanım", subject: "Türkçe" },
-  ingilizce: { name: "Sedef Hanım", subject: "İngilizce" },
-  matematik: { name: "Büşra Hanım", subject: "Matematik" },
-};
+fetch("https://opensheet.elk.sh/1QYTBSXMfk4VLUYtSKchxmVWEZJ75pBy-2pIogWESoaw/Ogretmenler")
+  .then(res => res.json())
+  .then(data => {
+    const teacherSelect = document.getElementById("teacherSelect");
+    teacherSelect.innerHTML = '<option value="">-- Öğretmen Seçin --</option>';
+
+    data.forEach(row => {
+      const branch = row["BRANS"];
+      const name = row["OGRETMEN_ADI"];
+      const subject = row["DERS_ADI"];
+
+      teachers[branch] = { name, subject };
+
+      const opt = document.createElement("option");
+      opt.value = branch;
+      opt.textContent = `${name} (${subject})`;
+      teacherSelect.appendChild(opt);
+    });
+
+    // Gerekirse event tetiklenebilir
+    teacherSelect.dispatchEvent(new Event("change"));
+  })
+  .catch(err => {
+    console.error("Öğretmen verisi alınamadı:", err);
+    Swal.fire("Hata", "Öğretmen listesi yüklenemedi.", "error");
+  });
+
+  
+    const studentData = {};
+const sınıfSet = new Set();
+
+fetch("https://opensheet.elk.sh/1QYTBSXMfk4VLUYtSKchxmVWEZJ75pBy-2pIogWESoaw/Ogrenciler")
+  .then(res => res.json())
+  .then(data => {
+    data.forEach(row => {
+      const sinif = row["SINIF"];
+      const ad = row["ADSOYAD"];
+
+      if (!studentData[sinif]) {
+        studentData[sinif] = [];
+      }
+      studentData[sinif].push(ad);
+      sınıfSet.add(sinif);
+    });
+
+    // 📌 Sınıf dropdown'ını doldur
+    const classSelect = document.getElementById("classSelect");
+    classSelect.innerHTML = '<option value="">-- Sınıf Seçin --</option>';
+
+    Array.from(sınıfSet)
+      .sort((a, b) => a.localeCompare(b, 'tr', { numeric: true })) // Örn: 7A, 8A, 8B, 8C
+      .forEach(sinif => {
+        const opt = document.createElement("option");
+        opt.value = sinif;
+        opt.textContent = sinif;
+        classSelect.appendChild(opt);
+      });
+
+    // Sınıf seçiliyse öğrenci listesini tetikle
+    if (classSelect.value) {
+      classSelect.dispatchEvent(new Event("change"));
+    }
+  })
+  .catch(err => {
+    console.error("Google Sheet'ten veri alınamadı:", err);
+    Swal.fire("Hata", "Öğrenci listesi yüklenemedi.", "error");
+  });
 
     document.getElementById("classSelect").addEventListener("change", function() {
       const selectedClass = this.value;
       const container = document.getElementById("students");
       container.innerHTML = "";
       if (!studentData[selectedClass]) return;
-      studentData[selectedClass].slice().sort().forEach(name => {
+      studentData[selectedClass]
+  .slice()
+  .sort((a, b) => a.localeCompare(b, 'tr', { sensitivity: 'base' }))
+  .forEach(name => {
         const div = document.createElement("div");
         div.className = "student-card";
         div.innerHTML = `
