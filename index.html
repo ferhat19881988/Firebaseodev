@@ -718,9 +718,13 @@ function loadFormFromLocalStorage() {
           text: "Firebase'de kayıtlı hiçbir form yok.",
           confirmButtonText: "Tamam",
           customClass: {
-            popup: 'wide-popup'
-          }
-        });
+    popup: 'wide-popup',
+    input: 'centered-select'
+  },
+  inputAttributes: {
+    style: 'font-size:15px;'
+  }
+});
         return;
       }
 
@@ -739,10 +743,13 @@ function loadFormFromLocalStorage() {
         confirmButtonText: "Yükle",
         cancelButtonText: "İptal",
         customClass: {
-          popup: 'wide-popup',
-          input: 'centered-select'
-        }
-      }).then(result => {
+    popup: 'wide-popup',
+    input: 'centered-select'
+  },
+  inputAttributes: {
+    style: 'font-size:15px;'
+  }
+}).then(result => {
         if (result.isConfirmed) {
           const selectedKey = result.value;
           currentFormKey = selectedKey;  // Güncel anahtar olarak ata
