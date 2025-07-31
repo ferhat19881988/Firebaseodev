@@ -919,6 +919,13 @@ function updateFormInLocalStorage() {
   });
 }
 
+function sanitizeKeyPart(str) {
+  return String(str || "")
+    .replace(/[.#$/\[\]]/g, "-")   // Firebase yasaklı karakterleri tireye çevir
+    .replace(/\s+/g, " ")          // çoklu boşlukları sadeleştir
+    .trim();
+}
+
 function generateDateKey() {
   const raw = document.getElementById("date").value;
   const date = raw.includes("T") ? raw.split("T")[0] : raw;
@@ -928,14 +935,23 @@ function generateDateKey() {
 
   const subject = teachers[teacherKey]?.subject || "";
 
-  // ❗ Eksik veri varsa key oluşturulmasın
   if (!subject || !date || !selectedClass || !homework) {
     currentDateKey = "";
     return;
   }
 
-  currentDateKey = `${subject} - ${date} - ${selectedClass} - ${homework}`;
+  const keySubject = sanitizeKeyPart(subject);
+  const keyClass   = sanitizeKeyPart(selectedClass);
+  const keyDate    = sanitizeKeyPart(date);
+  const keyHw      = sanitizeKeyPart(homework);
+
+  // 🆕 Rastgele kısa ID (örnek: ab12, u9z3...)
+  const randomId = Math.random().toString(36).substring(2, 6);
+
+  // 🔑 Final anahtar
+  currentDateKey = `${keySubject} - ${keyDate} - ${keyClass} - ${keyHw} - ${randomId}`;
 }
+
 
 
 
