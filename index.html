@@ -897,18 +897,6 @@ function updateFormInLocalStorage() {
     return;
   }
 
-  generateDateKey(); // currentDateKey güncelleniyor
-
-  if (currentFormKey !== currentDateKey) {
-    Swal.fire({
-      icon: "warning",
-      title: "Dosya Adı Değiştirildi",
-      text: "Dosya adı değiştirildiği için güncelleme yapılmayacak.",
-      confirmButtonText: "Tamam"
-    });
-    return;
-  }
-
   Swal.fire({
     title: "Güncellemek istediğinize emin misiniz?",
     text: `"${currentFormKey}" üzerine yazılacak.`,
@@ -942,6 +930,7 @@ function updateFormInLocalStorage() {
     }
   });
 }
+
 
 function sanitizeKeyPart(str) {
   return String(str || "")
