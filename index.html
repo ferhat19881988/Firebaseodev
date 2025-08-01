@@ -727,7 +727,18 @@ function loadFormFromLocalStorage() {
         return;
       }
 
-      const keys = Object.keys(data);
+      // 🔍 SADECE "Fen Bilimleri" ile başlayan kayıtları filtrele
+      const keys = Object.keys(data).filter(key => key.startsWith("Fen Bilimleri"));
+
+      if (keys.length === 0) {
+        Swal.fire({
+          icon: 'info',
+          title: "Kayıt Bulunamadı",
+          text: "Fen Bilimleri'ne ait kayıt bulunamadı.",
+          confirmButtonText: "Tamam"
+        });
+        return;
+      }
 
       Swal.fire({
         title: "Yüklenecek kayıt seçin",
@@ -806,6 +817,7 @@ function loadFormFromLocalStorage() {
 
 
 
+
 function clearLocalStorageForm() {
   database.ref('forms').once('value')
     .then(snapshot => {
@@ -822,7 +834,19 @@ function clearLocalStorageForm() {
         return;
       }
 
-      const keys = Object.keys(data);
+      // 🔍 SADECE "Fen Bilimleri" ile başlayan kayıtları göster (tekli seçimde)
+      const keys = Object.keys(data).filter(key => key.startsWith("Fen Bilimleri"));
+
+      if (keys.length === 0) {
+        Swal.fire({
+          icon: 'info',
+          title: "Kayıt Yok",
+          text: "Fen Bilimleri'ne ait silinebilir kayıt bulunamadı.",
+          confirmButtonText: "Tamam",
+          customClass: { popup: 'wide-popup' }
+        });
+        return;
+      }
 
       Swal.fire({
         title: "Silinecek kaydı seçin",
@@ -857,22 +881,30 @@ function clearLocalStorageForm() {
               console.error("Firebase silme hatası:", error);
               Swal.fire("Hata", "Kayıt silinirken hata oluştu.", "error");
             });
+
         } else if (result.isDenied) {
           Swal.fire({
             icon: 'warning',
             title: 'Emin misiniz?',
-            text: 'Bu işlem tüm kayıtları kalıcı olarak silecek!',
+            text: 'Tüm kayıtlar kalıcı olarak silinecek!',
             showCancelButton: true,
             confirmButtonText: 'Evet, Sil',
             cancelButtonText: 'Vazgeç'
           }).then(confirmResult => {
             if (confirmResult.isConfirmed) {
-              database.ref('forms').remove()
+              // 🔥 Quiz ile başlamayanları sil
+              const keysToDelete = Object.keys(data).filter(key => !key.startsWith("Quiz"));
+              const updates = {};
+              keysToDelete.forEach(key => {
+                updates[`forms/${key}`] = null;
+              });
+
+              database.ref().update(updates)
                 .then(() => {
                   Swal.fire({
                     icon: 'success',
-                    title: "Tüm Kayıtlar Silindi",
-                    text: "Tüm formlar Firebase üzerinden silindi.",
+                    title: "Hepsi Silindi",
+                    text: `"${keysToDelete.length}" kayıt silindi.`,
                     customClass: { popup: 'wide-popup' }
                   });
                 })
@@ -890,6 +922,8 @@ function clearLocalStorageForm() {
       Swal.fire("Hata", "Veriler alınırken bir hata oluştu.", "error");
     });
 }
+
+
 
 function updateFormInLocalStorage() {
   if (!currentFormKey) {
