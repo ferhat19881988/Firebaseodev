@@ -1003,6 +1003,16 @@ function generateDateKey() {
 
 
 function openStudentModal(studentName) {
+  // 🔒 Öğretmen verisi yüklenmemişse uyarı ver
+  if (Object.keys(teachers).length === 0) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Veri Hazırlanıyor',
+      text: 'Öğretmen verileri henüz yüklenmedi. Lütfen bir öğretmen seçiniz',
+    });
+    return;
+  }
+
   const oneMonthAgo = new Date();
   oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
 
@@ -1027,8 +1037,9 @@ function openStudentModal(studentName) {
         const match = data.students?.find(s => s.name === studentName);
         if (!match) return;
 
+        // 🛠️ Öğretmen filtrelemesi (yalnızca seçilmişse uygula)
         const selectedTeacher = document.getElementById("teacherSelect").value;
-        if (data.teacher !== selectedTeacher) return;
+        if (selectedTeacher && data.teacher !== selectedTeacher) return;
 
         const formattedDate = new Date(data.date).toLocaleDateString('tr-TR');
         const teacherName = teachers[data.teacher]?.name || data.teacher || "-";
@@ -1084,6 +1095,7 @@ function openStudentModal(studentName) {
       Swal.fire("Hata", "Veriler alınamadı.", "error");
     });
 }
+
 
 function getStatusLabel(status) {
   switch (status) {
