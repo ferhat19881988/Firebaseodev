@@ -1,945 +1,547 @@
-
 <!DOCTYPE html>
-
 <html lang="tr">
 <head>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Fenomen Çocuk Kulübü - Ödev Takibi</title>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
   <!-- Firebase SDK'ları -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
-<script>
-  // Firebase yapılandırma
-  const firebaseConfig = {
-    apiKey: "AIzaSyAIzu6aNQstwQCdMWODyIwiaVVBm63OeGw",
-    authDomain: "odevfeno.firebaseapp.com",
-    databaseURL: "https://odevfeno-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "odevfeno",
-    storageBucket: "odevfeno.firebasestorage.app",
-    messagingSenderId: "662757516934",
-    appId: "1:662757516934:web:0042188832f63deb6fd307",
-    measurementId: "G-4Q99NQRB38"
-  };
+  <style>
+    :root{
+      --brand-900:#992f00;
+      --brand-700:#c84d00;
+      --brand-600:#e56200;
+      --brand-500:#ff7a1a;
+      --brand-300:#ffb26e;
+      --brand-100:#fff3e6;
+      --ink:#23272b;
+    }
 
-  // Firebase'i başlat
-  firebase.initializeApp(firebaseConfig);
-  const database = firebase.database();
-</script>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Fenomen Çocuk Kulübü - Ödev Takibi</title>
-<style>
-.wide-popup {
-  width: 500px !important;
-  max-width: 90vw !important;
-}
+    /* Modern gradient header */
+    .app-navbar{
+      background: linear-gradient(135deg, var(--brand-700), var(--brand-500));
+      border-bottom: 1px solid rgba(255,255,255,.15);
+    }
+    .app-navbar .navbar-brand{
+      font-weight: 800;
+      letter-spacing:.2px;
+    }
+    .app-badge{
+      background: rgba(255,255,255,.15);
+      color:#fff;
+      border:1px solid rgba(255,255,255,.25);
+    }
 
-/* Select kutusunu ortala */
-.centered-select {
-  display: block !important;
-  margin: 0 auto !important;
-  width: 90% !important;
-  max-width: 400px;
-  font-size: 16px;
-  padding: 10px;
-  box-sizing: border-box;
-}
-    input[type="date"],
-    select,
-    textarea {
-        width: 100%;
-        box-sizing: border-box;
+    body{
+      background: linear-gradient(180deg, var(--brand-100), #ffffff 25%);
+      color: var(--ink);
     }
-    @media print {
-        body * {
-            visibility: hidden;
-        }
-        .print-area, .print-area * {
-            visibility: visible;
-        }
-        .print-area {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-        }
-        .no-print {
-            display: none !important;
-        }
-        @page {
-            size: A4 portrait;
-            margin: 1cm;
-        }
-    }
-    @media print { body * { visibility: hidden; } .print-area, .print-area * { visibility: visible; } .print-area { position: absolute; left: 0; top: 0; } }
-    body {
-      font-family: Arial, sans-serif;
-      background: #fffaf5;
-      color: #333;
-      margin: 0;
-      padding: 0;
-    }
-    .container {
-      max-width: 700px;
-      margin: auto;
-      padding: 20px;
-      background: white;
-      border-radius: 20px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-    h1 {
-      text-align: center;
-      color: #e65c00;
-      font-size: 26px;
-      margin-bottom: 20px;
-    }
-    label {
-      display: block;
-      margin: 10px 0 5px;
-      font-weight: bold;
-    }
-    input[type="date"],
-    textarea,
-    select {
-      width: 100%;
-      padding: 10px;
-      border-radius: 10px;
-      border: 1px solid #ccc;
-      font-size: 16px;
-      margin-bottom: 10px;
-    }
-    
-.student-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 10px;
-  margin-bottom: 20px;
-  max-height: 400px;
-  overflow-y: auto;
-}
 
-    
-.student-card {
-  display: flex;
-  flex-direction: column;
-  background: #fff5eb;
-  padding: 10px;
-  border-radius: 15px;
-  border-left: 5px solid #ffa94d;
-  gap: 8px;
-  border: 1px solid #ffa94d; /* açık turuncu kenarlık */
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05); /* hafif gölge */
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  cursor: pointer;
-}
+    .app-card{
+      border:1px solid var(--brand-300);
+      box-shadow: 0 8px 24px rgba(238, 118, 0,.12);
+    }
 
-.student-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1); /* hover'da vurgulama */
-} 
-   
-.student-name {
-  font-size: 16px;
-  font-weight: bold;
-  word-break: break-word;
-  color: #333;
-  transition: color 0.3s ease;
-}
+    .student-grid{
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap:12px;
+      max-height: 440px;
+      overflow:auto;
+    }
+    .student-card{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      padding:12px;
+      background:#fffdf9;
+      border:1px solid var(--brand-300);
+      border-left:6px solid var(--brand-500);
+      border-radius:14px;
+      transition:transform .2s ease, box-shadow .2s ease;
+      cursor:pointer;
+    }
+    .student-card:hover{
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(0,0,0,.08);
+    }
+    .student-name{
+      font-weight:700;
+    }
 
-.student-card:hover .student-name {
-  color: #e65c00;
-}
-    .student-status {
-      width: 35%;
+    /* Buttons – Bootstrap uyumlu turuncu tema */
+    .btn-brand{
+      --bs-btn-bg: var(--brand-500);
+      --bs-btn-border-color: var(--brand-500);
+      --bs-btn-hover-bg: var(--brand-600);
+      --bs-btn-hover-border-color: var(--brand-600);
+      --bs-btn-active-bg: var(--brand-700);
+      --bs-btn-active-border-color: var(--brand-700);
+      --bs-btn-color: #fff;
     }
-    button {
-      width: 100%;
-      padding: 12px;
-      background-color: #f5790f;
-      border: none;
-      color: white;
-      font-size: 18px;
-      border-radius: 10px;
-      cursor: pointer;
+    .btn-outline-brand{
+      --bs-btn-color: var(--brand-600);
+      --bs-btn-border-color: var(--brand-300);
+      --bs-btn-hover-bg: var(--brand-500);
+      --bs-btn-hover-border-color: var(--brand-500);
+      --bs-btn-hover-color:#fff;
     }
-    @media print {
-      body * {
-        visibility: hidden;
-      }
-      #print-area, #print-area * {
-        visibility: visible;
-      }
-      #print-area {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        padding: 20px;
-      }
-      .print-section {
-        page-break-after: always;
-      }
+
+    /* WhatsApp mini buton */
+    .whatsapp-btn{
+      border:0;
+      border-radius: .6rem;
+      padding: .45rem .6rem;
+      font-size: .95rem;
+      background:#25D366;
+      color:#fff;
+      transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
     }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
+    .whatsapp-btn:hover{ background:#1ebe5b; transform: translateY(-1px); box-shadow:0 6px 14px rgba(0,0,0,.12) }
+
+    /* Yazdır: modern çıktı */
+    @media print{
+      body *{ visibility:hidden; }
+      .print-area, .print-area *{ visibility:visible; }
+      .print-area{ position:absolute; inset:0; padding:12mm; }
+      @page{ size: A4 portrait; margin:10mm; }
+    }
+
+    /* Tablo görünümü */
+    table{
+      width:100%;
+      border-collapse:separate;
+      border-spacing:0;
+      border:1px solid #e1e1e1;
+      border-radius:12px;
+      overflow:hidden;
       font-size: 13px;
     }
-    th, td {
-      border: 1px solid #555;
-      padding: 6px;
-      text-align: left;
+    th{
+      background: linear-gradient(180deg, #ffe4cc, #ffd7b3);
+      color:#5a2c00;
+      font-weight:700;
     }
-    th {
-      background: #ffe0cc;
-      color: #333;
+    th,td{ padding:.55rem .65rem; border-bottom:1px solid #ececec; }
+    tr:nth-child(even) td{ background:#fff8f1; }
+
+    /* Form elementleri */
+    .form-select, .form-control{
+      border-radius: .8rem;
+      border-color:#e9a86a;
     }
-    .section-title {
-      color: #e65c00;
-      font-size: 20px;
-      margin: 10px 0;
-    }
-    
-.whatsapp-btn {
-  background-color: #25D366;
-  border: none;
-  color: white;
-  border-radius: 8px;
-  padding: 4px 4px;
-  font-size: 12px;
-  cursor: pointer;
-  margin-left: 10px;
-transition: all 0.3s ease;
- 
-}
 
-.whatsapp-btn:hover {
-  background-color: #1ebe5b; /* daha koyu yeşil */
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-  transform: scale(1.05); /* %5 büyüme */
-}
+    /* SweetAlert geniş popup */
+    .wide-popup{ width:500px !important; max-width: 92vw !important; }
+    .centered-select{ display:block!important; margin:0 auto!important; width:90%!important; max-width:400px; font-size:16px; padding:10px; box-sizing:border-box; }
 
-.student-status-row {
-  justify-content: space-between;
-  align-items: center;
-  display: flex;
-  gap: 6px;
-}
-
-.student-status-row select {
-  flex-grow: 1;
-}
-
-.student-status-row .whatsapp-btn {
-  flex-shrink: 0;
-  white-space: nowrap;
-}
-
-.student-status-row select {
-  flex: 1.3;
-  padding: 10px;
-  font-size: 16px;
-  border-radius: 8px;
-}
-
-.student-status-row .whatsapp-btn {
-  flex: 0.6;
-  font-size: 18px;
-  padding: 10px 14px;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-
-.student-status-row .whatsapp-btn {
-  flex: 0.5;
-  font-size: 14px;
-  padding: 6px 8px;
-  height: auto;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.action-buttons {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-  margin-top: 20px;
-  padding: 0 10px;
-}
-
-.action-buttons button {
-  background-color: #ffa94d;
-  color: white;
-  font-size: 14px;
-  padding: 10px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 6px;
-  transition: background-color 0.3s ease;
-}
-
-.action-buttons button:hover {
-  background-color: #f5790f;
-}
-
-</style>
+  </style>
 </head>
 <body>
-<div class="container">
-<input id="currentFormKey" type="hidden"/>
-<h1>Fenomen Çocuk Kulübü<br/>Ödev Takibi</h1>
-<label for="date">Tarih:</label>
-<input id="date" type="date"/>
-<label for="teacherSelect">Öğretmen:</label>
-<select id="teacherSelect">
-  <option value="">-- Öğretmen Seçin --</option>
-</select>
-<!-- Eklenen: Sınıf düzeyi ve ünite seçimi -->
-<div style="border-top: 2px dashed #ffa94d; margin: 15px 0; padding: 10px 0;">
-<label for="gradeLevel" style="font-weight:bold; color:#e65c00;">Sınıf Düzeyi:</label>
-<select id="gradeLevel" style="width:100%; padding:10px; margin-top:5px;">
-<option value="">-- Sınıf Seçin --</option>
-<option value="8">8. Sınıf</option>
-<option value="7">7. Sınıf</option>
-<option value="6">6. Sınıf</option>
-<option value="5">5. Sınıf</option>
-</select>
-<label for="unitSelect" style="font-weight:bold; color:#e65c00;">Ünite Seçimi:</label>
-<select id="unitSelect" style="width:100%; padding:10px; margin-top:5px;">
-<option value="">-- Ünite Seçin --</option>
-</select>
-</div>
-<label for="homework">Ödev:</label>
-<textarea id="homework" rows="2"></textarea>
-<label for="classSelect">Sınıf Seçin:</label>
-<select id="classSelect">
-  <option value="">-- Sınıf Seçin --</option>
-</select>
-<div class="student-grid" id="students"></div>
-<div class="action-buttons">
-<button onclick="printReport()"><span>🖨️</span> Yazdır</button>
-<button onclick="saveFormToLocalStorage()"><span>💾</span> Kaydet</button>
-<button onclick="loadFormFromLocalStorage()"><span>📂</span> Yükle</button>
-<button onclick="clearLocalStorageForm()"><span>🗑️</span> Sil</button>
-<button onclick="updateFormInLocalStorage()">🔁 Güncelle</button>
-<button onclick="refreshForm()">🔄 Yenile</button>
-</div>
-</div>
-<div id="print-area" style="display:none;"></div>
-<script>
-  const teachers = {};
 
-fetch("https://opensheet.elk.sh/1QYTBSXMfk4VLUYtSKchxmVWEZJ75pBy-2pIogWESoaw/Ogretmenler")
-  .then(res => res.json())
-  .then(data => {
-    const teacherSelect = document.getElementById("teacherSelect");
-    teacherSelect.innerHTML = '<option value="">-- Öğretmen Seçin --</option>';
+  <!-- HEADER -->
+ <nav class="navbar navbar-expand-lg app-navbar sticky-top py-3">
+  <div class="container">
+    <a class="navbar-brand text-white d-flex align-items-center gap-2" href="#">
+      <img src="https://i.ibb.co/cS9PSRpq/Logo-Fenomen.jpg" alt="Fenomen Logo" class="logo" 
+           style="height:40px; border-radius:6px;">
+      <span class="fs-4">Fenomen Çocuk Kulübü</span>
+    </a>
+    <span class="badge rounded-pill app-badge ms-auto">Ödev Takibi</span>
+  </div>
+</nav>
 
-    data.forEach(row => {
-      const branch = row["BRANS"];
-      const name = row["OGRETMEN_ADI"];
-      const subject = row["DERS_ADI"];
 
-      teachers[branch] = { name, subject };
+  <!-- MAIN -->
+  <main class="container my-4">
+    <div class="card app-card p-3 p-md-4">
+      <h1 class="h3 text-center mb-3" style="color:var(--brand-600)">Ödev Takibi</h1>
 
-      const opt = document.createElement("option");
-      opt.value = branch;
-      opt.textContent = `${name} (${subject})`;
-      teacherSelect.appendChild(opt);
-    });
+      <div class="row g-3">
+        <div class="col-12 col-md-4">
+          <label for="date" class="form-label fw-semibold">Tarih</label>
+          <input type="date" id="date" class="form-control"/>
+        </div>
 
-    // Gerekirse event tetiklenebilir
-    teacherSelect.dispatchEvent(new Event("change"));
-  })
-  .catch(err => {
-    console.error("Öğretmen verisi alınamadı:", err);
-    Swal.fire("Hata", "Öğretmen listesi yüklenemedi.", "error");
-  });
+        <div class="col-12 col-md-4">
+          <label for="teacherSelect" class="form-label fw-semibold">Öğretmen</label>
+          <select id="teacherSelect" class="form-select">
+            <option value="">-- Öğretmen Seçin --</option>
+          </select>
+        </div>
 
-  
+        <div class="col-12"><hr class="my-2" style="border-color:#ffd7b3"></div>
+
+        <div class="col-12 col-md-3">
+          <label for="gradeLevel" class="form-label fw-semibold" style="color:var(--brand-600)">Sınıf Düzeyi</label>
+          <select id="gradeLevel" class="form-select">
+            <option value="">-- Sınıf Seçin --</option>
+            <option value="8">8. Sınıf</option>
+            <option value="7">7. Sınıf</option>
+            <option value="6">6. Sınıf</option>
+            <option value="5">5. Sınıf</option>
+          </select>
+        </div>
+
+        <div class="col-12 col-md-5">
+          <label for="unitSelect" class="form-label fw-semibold" style="color:var(--brand-600)">Ünite Seçimi</label>
+          <select id="unitSelect" class="form-select">
+            <option value="">-- Ünite Seçin --</option>
+          </select>
+        </div>
+
+        <div class="col-12">
+          <label for="homework" class="form-label fw-semibold">Ödev</label>
+          <textarea id="homework" rows="2" class="form-control"></textarea>
+        </div>
+
+        <div class="col-12 col-md-4">
+          <label for="classSelect" class="form-label fw-semibold">Sınıf</label>
+          <select id="classSelect" class="form-select">
+            <option value="">-- Sınıf Seçin --</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Öğrenciler -->
+      <div class="mt-3">
+        <div id="students" class="student-grid"></div>
+      </div>
+
+      <!-- Aksiyonlar -->
+      <div class="row row-cols-2 row-cols-md-3 g-2 g-md-3 mt-3">
+        <div class="col">
+          <button class="btn btn-brand w-100" onclick="printReport()">🖨️ Yazdır</button>
+        </div>
+        <div class="col">
+          <button class="btn btn-outline-brand w-100" onclick="saveFormToLocalStorage()">💾 Kaydet</button>
+        </div>
+        <div class="col">
+          <button class="btn btn-outline-brand w-100" onclick="loadFormFromLocalStorage()">📂 Yükle</button>
+        </div>
+        <div class="col">
+          <button class="btn btn-outline-danger w-100" onclick="clearLocalStorageForm()">🗑️ Sil</button>
+        </div>
+        <div class="col">
+          <button class="btn btn-outline-brand w-100" onclick="updateFormInLocalStorage()">🔁 Güncelle</button>
+        </div>
+        <div class="col">
+          <button class="btn btn-outline-secondary w-100" onclick="refreshForm()">🔄 Yenile</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- PRINT AREA (JS dolduruyor) -->
+  <div id="print-area" class="print-area" style="display:none;"></div>
+
+  <!-- Firebase Config + App JS (orijinal mantık korunuyor) -->
+  <script>
+    // Firebase yapılandırma (değiştirmedim)
+    const firebaseConfig = {
+      apiKey: "AIzaSyAIzu6aNQstwQCdMWODyIwiaVVBm63OeGw",
+      authDomain: "odevfeno.firebaseapp.com",
+      databaseURL: "https://odevfeno-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "odevfeno",
+      storageBucket: "odevfeno.firebasestorage.app",
+      messagingSenderId: "662757516934",
+      appId: "1:662757516934:web:0042188832f63deb6fd307",
+      measurementId: "G-4Q99NQRB38"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+  </script>
+
+  <script>
+    // ==== Orijinal JS + ufak iyileştirmeler ====
+
+    const teachers = {};
     const studentData = {};
-const sınıfSet = new Set();
+    const sınıfSet = new Set();
+    let currentFormKey = null; // Yüklenen kayıt anahtarı
+    let currentDateKey = "";   // Şu anki formdan oluşturulan anahtar
 
-fetch("https://opensheet.elk.sh/1QYTBSXMfk4VLUYtSKchxmVWEZJ75pBy-2pIogWESoaw/Ogrenciler")
-  .then(res => res.json())
-  .then(data => {
-    data.forEach(row => {
-      const sinif = row["SINIF"];
-      const ad = row["ADSOYAD"];
-
-      if (!studentData[sinif]) {
-        studentData[sinif] = [];
-      }
-      studentData[sinif].push(ad);
-      sınıfSet.add(sinif);
-    });
-
-    // 📌 Sınıf dropdown'ını doldur
-    const classSelect = document.getElementById("classSelect");
-    classSelect.innerHTML = '<option value="">-- Sınıf Seçin --</option>';
-
-    Array.from(sınıfSet)
-      .sort((a, b) => a.localeCompare(b, 'tr', { numeric: true })) // Örn: 7A, 8A, 8B, 8C
-      .forEach(sinif => {
-        const opt = document.createElement("option");
-        opt.value = sinif;
-        opt.textContent = sinif;
-        classSelect.appendChild(opt);
+    // Öğretmenler
+    fetch("https://opensheet.elk.sh/1QYTBSXMfk4VLUYtSKchxmVWEZJ75pBy-2pIogWESoaw/Ogretmenler")
+      .then(res => res.json())
+      .then(data => {
+        const teacherSelect = document.getElementById("teacherSelect");
+        teacherSelect.innerHTML = '<option value="">-- Öğretmen Seçin --</option>';
+        data.forEach(row => {
+          const branch = row["BRANS"];
+          const name = row["OGRETMEN_ADI"];
+          const subject = row["DERS_ADI"];
+          teachers[branch] = { name, subject };
+          const opt = document.createElement("option");
+          opt.value = branch;
+          opt.textContent = `${name} (${subject})`;
+          teacherSelect.appendChild(opt);
+        });
+        teacherSelect.dispatchEvent(new Event("change"));
+      })
+      .catch(err => {
+        console.error("Öğretmen verisi alınamadı:", err);
+        Swal.fire("Hata", "Öğretmen listesi yüklenemedi.", "error");
       });
 
-    // Sınıf seçiliyse öğrenci listesini tetikle
-    if (classSelect.value) {
-      classSelect.dispatchEvent(new Event("change"));
-    }
-  })
-  .catch(err => {
-    console.error("Google Sheet'ten veri alınamadı:", err);
-    Swal.fire("Hata", "Öğrenci listesi yüklenemedi.", "error");
-  });
+    // Öğrenciler
+    fetch("https://opensheet.elk.sh/1QYTBSXMfk4VLUYtSKchxmVWEZJ75pBy-2pIogWESoaw/Ogrenciler")
+      .then(res => res.json())
+      .then(data => {
+        data.forEach(row => {
+          const sinif = row["SINIF"];
+          const ad = row["ADSOYAD"];
+          if (!studentData[sinif]) { studentData[sinif] = []; }
+          studentData[sinif].push(ad);
+          sınıfSet.add(sinif);
+        });
 
+        const classSelect = document.getElementById("classSelect");
+        classSelect.innerHTML = '<option value="">-- Sınıf Seçin --</option>';
+        Array.from(sınıfSet)
+          .sort((a, b) => a.localeCompare(b, 'tr', { numeric: true }))
+          .forEach(sinif => {
+            const opt = document.createElement("option");
+            opt.value = sinif;
+            opt.textContent = sinif;
+            classSelect.appendChild(opt);
+          });
+
+        if (classSelect.value) classSelect.dispatchEvent(new Event("change"));
+      })
+      .catch(err => {
+        console.error("Google Sheet'ten veri alınamadı:", err);
+        Swal.fire("Hata", "Öğrenci listesi yüklenemedi.", "error");
+      });
+
+    // Sınıf değişince kartları oluştur
     document.getElementById("classSelect").addEventListener("change", function() {
       const selectedClass = this.value;
       const container = document.getElementById("students");
       container.innerHTML = "";
       if (!studentData[selectedClass]) return;
+
       studentData[selectedClass]
-  .slice()
-  .sort((a, b) => a.localeCompare(b, 'tr', { sensitivity: 'base' }))
-  .forEach(name => {
-        const div = document.createElement("div");
-        div.className = "student-card";
-        div.innerHTML = `
-        <span class="student-name" onclick="openStudentModal('${name}')">▪ ${name}</span>
-        <div class="student-status-row">
-          <select class="student-status">
-            <option value="yaptı">✅ Yaptı</option>
-            <option value="yapmadı">❌ Yapmadı</option>
-            <option value="eksik">❗ Eksik</option>
-            <option value="gelmedi">⛔ Gelmedi</option>
-          </select>
-          <button class="whatsapp-btn" onclick="
-      const card = this.closest('.student-card');
-      const studentName = card.querySelector('.student-name').innerText.replace('▪ ', '');
-      const statusSelect = card.querySelector('.student-status');
-      const statusText = statusSelect.options[statusSelect.selectedIndex].text;
-      const icon = statusText.split(' ')[0];
-      const label = statusText.split(' ').slice(1).join(' ');
-      generateWhatsappLink(studentName, icon, label);
-    ">📩</button>
-        </div>
-      `;
-        container.appendChild(div);
-      });
+        .slice()
+        .sort((a, b) => a.localeCompare(b, 'tr', { sensitivity: 'base' }))
+        .forEach(name => {
+          const div = document.createElement("div");
+          div.className = "student-card";
+          div.innerHTML = `
+            <span class="student-name" onclick="openStudentModal('${name}')">▪ ${name}</span>
+            <div class="d-flex gap-2 align-items-stretch">
+              <select class="form-select student-status">
+                <option value="yaptı">✅ Yaptı</option>
+                <option value="yapmadı">❌ Yapmadı</option>
+                <option value="eksik">❗ Eksik</option>
+                <option value="gelmedi">⛔ Gelmedi</option>
+              </select>
+              <button class="whatsapp-btn" title="WhatsApp ile gönder" onclick="
+                const card = this.closest('.student-card');
+                const studentName = card.querySelector('.student-name').innerText.replace('▪ ', '');
+                const statusSelect = card.querySelector('.student-status');
+                const statusText = statusSelect.options[statusSelect.selectedIndex].text;
+                const icon = statusText.split(' ')[0];
+                const label = statusText.split(' ').slice(1).join(' ');
+                generateWhatsappLink(studentName, icon, label);
+              ">📩</button>
+            </div>`;
+          container.appendChild(div);
+        });
     });
 
-   function printReport() {
-  const rawDate = document.getElementById("date").value;
-  const date = rawDate.split("T")[0]; // Sadece '2025-07-24' kalır, saat kısmı gider
-  const grade = document.getElementById("gradeLevel").value;
-  const unit = document.getElementById("unitSelect").value;
-  const homework = document.getElementById("homework").value;
-  const selectedClass = document.getElementById("classSelect").value;
-  const teacherKey = document.getElementById("teacherSelect").value;
-  const teacherInfo = teachers[teacherKey];
-  const teacher = teacherInfo?.name || teacherKey;
-  const students = document.querySelectorAll(".student-card");
+    // Yazdır (modern çıktı)
+    function printReport() {
+      const rawDate = document.getElementById("date").value;
+      const grade = document.getElementById("gradeLevel").value;
+      const unit = document.getElementById("unitSelect").value;
+      const homework = document.getElementById("homework").value;
+      const selectedClass = document.getElementById("classSelect").value;
+      const teacherKey = document.getElementById("teacherSelect").value;
+      const teacherInfo = teachers[teacherKey];
+      const teacher = teacherInfo?.name || teacherKey;
+      const students = document.querySelectorAll(".student-card");
 
-  // ✅ FORM KONTROLLERİ
-if (!rawDate || !grade || !unit || !homework || !selectedClass) {
-  Swal.fire({
-    icon: 'warning',
-    title: 'Eksik Alan!',
-    text: 'Tarih, sınıf, ünite ve ödev bilgilerini doldurunuz.',
-    confirmButtonText: 'Tamam'
-  });
-  return;
-}
+      if (!rawDate || !grade || !unit || !homework || !selectedClass) {
+        Swal.fire({ icon:'warning', title:'Eksik Alan!', text:'Tarih, sınıf, ünite ve ödev bilgilerini doldurunuz.' }); return;
+      }
+      if (!teacher) { Swal.fire({ icon:'warning', title:'Öğretmen Seçilmedi', text:'Lütfen öğretmen seçiniz.'}); return; }
+      if (students.length === 0){ Swal.fire({ icon:'error', title:'Öğrenci Bulunamadı', text:'Seçilen sınıfa ait öğrenci bulunamadı.'}); return; }
 
-if (!teacher) {
-  Swal.fire({
-    icon: 'warning',
-    title: 'Öğretmen Seçilmedi',
-    text: 'Lütfen öğretmen seçiniz.',
-    confirmButtonText: 'Tamam'
-  });
-  return;
-}
+      const [y, m, d] = rawDate.split("-");
+      const dateFormatted = `${d}.${m}.${y}`;
 
-if (students.length === 0) {
-  Swal.fire({
-    icon: 'error',
-    title: 'Öğrenci Bulunamadı',
-    text: 'Seçilen sınıfa ait öğrenci bulunamadı.',
-    confirmButtonText: 'Tamam'
-  });
-  return;
-}
+      let yapanlar = "", digerleri = "";
+      students.forEach(card => {
+        const name = card.querySelector(".student-name").innerText.replace("▪ ", "");
+        const status = card.querySelector(".student-status").value;
+        const label = card.querySelector(".student-status").selectedOptions[0].text;
+        const row = `<tr><td>${name}</td><td>${label}</td></tr>`;
+        if (status === "yaptı") yapanlar += row; else digerleri += row;
+      });
 
-  // 🔄 Tarih formatlama
-  const dateParts = rawDate.split("-");
-  const dateFormatted = `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}`;
+      const brandTop = `
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <img src="https://i.ibb.co/cS9PSRpq/Logo-Fenomen.jpg" alt="Logo" style="height:40px; border-radius:6px;">
+      <div style="font-size:18px;font-weight:800;color:#c84d00">Fenomen Çocuk Kulübü</div>
+    </div>
+    <span style="font-size:12px;padding:6px 10px;border-radius:999px;background:#fff0e4;border:1px solid #ffc999;color:#a04100">Ödev Takip Raporu</span>
+  </div>`;
 
-  let yapanlar = "";
-  let yapmayanlar = "";
 
-  students.forEach(card => {
-    const name = card.querySelector(".student-name").innerText.replace("▪ ", "");
-    const status = card.querySelector(".student-status").value;
-    const label = card.querySelector(".student-status").selectedOptions[0].text;
-    const row = `<tr><td>${name}</td><td>${label}</td></tr>`;
-    if (status === "yaptı") {
-      yapanlar += row;
-    } else {
-      yapmayanlar += row;
+      const infoRow = `
+        <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:8px 0 14px">
+          <div style="padding:8px 10px;border:1px solid #ffe0c2;border-radius:10px;background:#fff8f1"><b>Öğretmen:</b> ${teacher}</div>
+          <div style="padding:8px 10px;border:1px solid #ffe0c2;border-radius:10px;background:#fff8f1"><b>Tarih:</b> ${dateFormatted}</div>
+          <div style="padding:8px 10px;border:1px solid #ffe0c2;border-radius:10px;background:#fff8f1"><b>Sınıf:</b> ${selectedClass}</div>
+          <div style="padding:8px 10px;border:1px solid #ffe0c2;border-radius:10px;background:#fff8f1"><b>Ünite:</b> ${unit}</div>
+        </div>`;
+
+      const hw = `<div style="margin:6px 0 12px;padding:10px;border-left:5px solid #ff9a44;background:#fff5eb;border:1px solid #ffd4a8;border-radius:10px"><b>Ödev:</b> ${homework}</div>`;
+
+      const section = (title, rows)=>`
+        <h2 style="font-size:16px;color:#c84d00;margin:14px 0 6px">${title}</h2>
+        <table>
+          <tr><th style="width:70%">Öğrenci Adı</th><th>Durumu</th></tr>
+          ${rows || `<tr><td colspan="2">Kayıt yok</td></tr>`}
+        </table>`;
+
+      const page = (title, rows)=>`
+        <div>
+          ${brandTop}
+          ${infoRow}
+          ${hw}
+          ${section(title, rows)}
+        </div>`;
+
+      const printHTML = `
+        <html><head>
+          <title>Ödev Raporu - ${dateFormatted} - ${selectedClass} - ${unit}</title>
+          <style>
+            body{ font-family:Arial, sans-serif; margin:0; padding:12mm; color:#222 }
+            h1,h2,h3{ margin:0 }
+            table{ width:100%; border-collapse:separate; border-spacing:0; border:1px solid #e1e1e1; border-radius:12px; overflow:hidden; font-size:13px }
+            th{ background:linear-gradient(180deg,#ffe4cc,#ffd7b3); color:#5a2c00; font-weight:700 }
+            th,td{ padding:.55rem .65rem; border-bottom:1px solid #ececec }
+            tr:nth-child(even) td{ background:#fff8f1 }
+            .page-break{ page-break-before:always }
+            @page{ size:A4 portrait; margin:10mm }
+          </style>
+        </head>
+        <body>
+          ${page("✅ Ödevi Yapanlar", yapanlar)}
+          <div class="page-break"></div>
+          ${page("❌ Yapmayan / ❗ Eksik / ⛔ Gelmeyen", digerleri)}
+        </body></html>`;
+
+      const w = window.open('', '_blank');
+      w.document.open(); w.document.write(printHTML); w.document.close(); w.focus();
+      w.onload = () => w.print();
     }
-  });
 
-  const printContent = `
-  <html>
-  <head>
-    <title>Ödev Raporu - ${dateFormatted} - ${selectedClass} - ${unit}</title>
-    <style>
-      body { font-family: Arial, sans-serif; margin: 20px; }
-      h1 { color: #e65c00; text-align: center; }
-      table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
-      th, td { border: 1px solid #555; padding: 6px; text-align: left; }
-      th { background: #ffe0cc; }
-      .section-title { font-size: 18px; color: #e65c00; margin-top: 20px; }
-      .page-break { page-break-before: always; }
-    </style>
-  </head>
-  <body>
-    <h1>Fenomen Çocuk Kulübü - Ödev Takibi</h1>
-    <p><strong>Öğretmen:</strong> ${teacher}</p>
-    <p><strong>Sınıfı:</strong> ${selectedClass}</p>
-    <p><strong>Ünite:</strong> ${unit}</p>
-    <p><strong>Ödev:</strong> ${homework}<span style="float:right; font-weight:bold; text-decoration:underline; color:#000;">${dateFormatted}</span></p>
+    // Ünite listesi
+    const allUnits = {
+      turkce:{ "5":["Sözcükte Anlam","Cümlede Anlam","Paragrafta Anlam","Dil Bilgisi","Yazım Kuralları","Noktalama İşaretleri","Metin Türleri","Anlatım Bozuklukları"],
+               "6":["Sözcükte Anlam","Cümlede Anlam","Paragraf Yorumu","Fiil, Zarf, Sıfat","Yazım ve Noktalama","Paragraf Çözümleme","Metin Yapısı","Deyim ve Atasözleri"],
+               "7":["Sözcükte Anlam","Paragraf Bilgisi","Cümlede Anlam","Dil Bilgisi","Yazılı Anlatım","Metin Türleri","Anlatım Bozuklukları"],
+               "8":["Sözcükte ve Cümlede Anlam","Paragraf Bilgisi","Dil Bilgisi","Metin Türleri","Yazım ve Noktalama","Anlatım Bozuklukları"] },
+      matematik:{ "5":["Doğal Sayılar","Kesirler","Ondalık Sayılar","Geometri","Veri ve İstatistik","Zaman","Örüntüler ve Süreçler"],
+                  "6":["Tam Sayılar","Kesirler ve Ondalıklar","Oran ve Orantı","Cebirsel İfadeler","Geometrik Cisimler","Veri ve Olasılık"],
+                  "7":["Tam Sayılar","Rasyonel Sayılar","Denklemler","Oran ve Orantı","Geometrik Cisimler","Açılar ve Çokgenler","Veri Yorumlama"],
+                  "8":["Çarpanlar ve Katlar","Üslü Sayılar","Kareköklü İfadeler","Denklemler","Eşitsizlikler","Geometrik Cisimler","Olasılık","Eşlik ve Benzerlik"] },
+      fen:{ "5":["Güneş, Dünya ve Ay","Kuvvet ve Hareket","Maddeyi Tanıyalım","Işık ve Ses","Canlılar Dünyası","Elektrik ve Enerji"],
+            "6":["Destek ve Hareket Sistemi","Sindirim – Dolaşım – Solunum","Kuvvet – Sürat","Yoğunluk – Isı – Hal Değişimi","Ses","Elektrik ve Yaşam"],
+            "7":["Güneş Sistemi","Hücre ve Bölünmeler","Kuvvet – Enerji","Madde ve Karışımlar","Işık – Ses","Canlılarda Enerji","Elektrik Devreleri"],
+            "8":["Mevsimler ve İklim","DNA ve Genetik Kod","Basınç","Madde ve Endüstri","Basit Makineler","Enerji Dönüşümleri","Elektrik Yükleri"] },
+      sosyal:{ "5":["Birlikte Yaşama","Kültürel Miras","İnsanlar, Yerler ve Çevreler","Üretim, Dağıtım, Tüketim","Birey ve Toplum","Bilim, Teknoloji, Toplum"],
+               "6":["Zaman ve Mekan","Kültür ve Miras","İnsanlar ve Yerler","Bilim – Teknoloji – Toplum","Ekonomi – Kaynaklar","Demokrasi ve Yurttaşlık"],
+               "7":["Kültür ve Miras","İnsanlar ve Yerler","Bilimsel Gelişmeler","Ekonomi ve Kaynaklar","Vatandaşlık ve Haklar","Küresel Bağlantılar"],
+               "8":["İnkılap Tarihi","Kurtuluş Savaşı","Cumhuriyet Dönemi","Demokrasi Kültürü","Toplum ve Değerler"] },
+      ingilizce:{ "5":["Hello!","My Town","Games and Hobbies","Health","The Animal Shelter","My Daily Routine","My House","My Clothes"],
+                  "6":["Life","Weather","Occupations","Downtown","Holidays","Environment","Bookworms","Democracy"],
+                  "7":["Appearance","Sports","Biographies","Movies and Media","Environment","Celebrations","Dreams","Jobs and Future"],
+                  "8":["Friendship","Teen Life","In the Kitchen","On the Phone","The Internet","Adventures","Tourism","Science"] },
+      din:{ "5":["İslam'ın Temel İnançları","Peygamberimiz ve Ailesi","İbadetler","Ahlak ve Değerler","Kuran’dan Mesajlar"],
+            "6":["Allah İnancı","Peygamberler ve Dualar","İbadet Bilinci","İslam Ahlakı","Toplumsal Sorumluluk"],
+            "7":["İnanç ve İbadet","Peygamberimizin Hayatı","Kur'an ve Mesajları","Ahlak ve Davranış","Din Kültürü"],
+            "8":["İslam’da Kader","İslam’da Sosyal Adalet","Zekât ve Sadaka","Hz. Muhammed’in Örnekliği","Kur'an’ın Özellikleri"] }
+    };
 
-    <h2 class="section-title">✅ Ödevi Yapanlar</h2>
-    <table>
-      <tr><th>Öğrenci Adı</th><th>Durumu</th></tr>
-      ${yapanlar}
-    </table>
+    window.onload = function() {
+      document.getElementById("date").addEventListener("change", generateDateKey);
+      document.getElementById("classSelect").addEventListener("change", generateDateKey);
+      document.getElementById("homework").addEventListener("input", generateDateKey);
+    };
 
-    <div class="page-break"></div>
+    function generateWhatsappLink(name, statusIcon, statusLabel) {
+      const rawDate = document.getElementById("date").value;
+      const unit = document.getElementById("unitSelect").value;
+      const homework = document.getElementById("homework").value;
 
-    <h1>Fenomen Çocuk Kulübü - Ödev Takibi</h1>
-    <p><strong>Öğretmen:</strong> ${teacher}</p>
-    <p><strong>Sınıfı:</strong> ${selectedClass}</p>
-    <p><strong>Ünite:</strong> ${unit}</p>
-    <p><strong>Ödev:</strong> ${homework}<span style="float:right; font-weight:bold; text-decoration:underline; color:#000;">${dateFormatted}</span></p>
+      const teacherKey = document.getElementById("teacherSelect").value;
+      const teacherInfo = teachers[teacherKey];
+      const subject = teacherInfo?.subject || unit;
+      const teacherName = teacherInfo?.name || "Öğretmen";
 
-    <h2 class="section-title">❌ Yapmayan / Eksik / Gelmeyen</h2>
-    <table>
-      <tr><th>Öğrenci Adı</th><th>Durumu</th></tr>
-      ${yapmayanlar}
-    </table>
-  </body>
-  </html>
-`;
-
-
-  const printWindow = window.open('', '_blank');
-printWindow.document.open();
-printWindow.document.write(printContent);
-printWindow.document.close();
-printWindow.focus();
-
-printWindow.onload = () => {
-  printWindow.print();
-
-  // 2 saniye sonra otomatik kapat
-
-};
-}
-
-const allUnits = {
- turkce: {
-    "5": ["Sözcükte Anlam", "Cümlede Anlam", "Paragrafta Anlam", "Dil Bilgisi", "Yazım Kuralları", "Noktalama İşaretleri", "Metin Türleri", "Anlatım Bozuklukları"],
-    "6": ["Sözcükte Anlam", "Cümlede Anlam", "Paragraf Yorumu", "Fiil, Zarf, Sıfat", "Yazım ve Noktalama", "Paragraf Çözümleme", "Metin Yapısı", "Deyim ve Atasözleri"],
-    "7": ["Sözcükte Anlam", "Paragraf Bilgisi", "Cümlede Anlam", "Dil Bilgisi", "Yazılı Anlatım", "Metin Türleri", "Anlatım Bozuklukları"],
-    "8": ["Sözcükte ve Cümlede Anlam", "Paragraf Bilgisi", "Dil Bilgisi", "Metin Türleri", "Yazım ve Noktalama", "Anlatım Bozuklukları"]
-  },
-
-  matematik: {
-    "5": ["Doğal Sayılar", "Kesirler", "Ondalık Sayılar", "Geometri", "Veri ve İstatistik", "Zaman", "Örüntüler ve Süreçler"],
-    "6": ["Tam Sayılar", "Kesirler ve Ondalıklar", "Oran ve Orantı", "Cebirsel İfadeler", "Geometrik Cisimler", "Veri ve Olasılık"],
-    "7": ["Tam Sayılar", "Rasyonel Sayılar", "Denklemler", "Oran ve Orantı", "Geometrik Cisimler", "Açılar ve Çokgenler", "Veri Yorumlama"],
-    "8": ["Çarpanlar ve Katlar", "Üslü Sayılar", "Kareköklü İfadeler", "Denklemler", "Eşitsizlikler", "Geometrik Cisimler", "Olasılık", "Eşlik ve Benzerlik"]
-  },
-
-  fen: {
-    "5": ["Güneş, Dünya ve Ay", "Kuvvet ve Hareket", "Maddeyi Tanıyalım", "Işık ve Ses", "Canlılar Dünyası", "Elektrik ve Enerji"],
-    "6": ["Destek ve Hareket Sistemi", "Sindirim – Dolaşım – Solunum", "Kuvvet – Sürat", "Yoğunluk – Isı – Hal Değişimi", "Ses", "Elektrik ve Yaşam"],
-    "7": ["Güneş Sistemi", "Hücre ve Bölünmeler", "Kuvvet – Enerji", "Madde ve Karışımlar", "Işık – Ses", "Canlılarda Enerji", "Elektrik Devreleri"],
-    "8": ["Mevsimler ve İklim", "DNA ve Genetik Kod", "Basınç", "Madde ve Endüstri", "Basit Makineler", "Enerji Dönüşümleri", "Elektrik Yükleri"]
-  },
-
-  sosyal: {
-    "5": ["Birlikte Yaşama", "Kültürel Miras", "İnsanlar, Yerler ve Çevreler", "Üretim, Dağıtım, Tüketim", "Birey ve Toplum", "Bilim, Teknoloji, Toplum"],
-    "6": ["Zaman ve Mekan", "Kültür ve Miras", "İnsanlar ve Yerler", "Bilim – Teknoloji – Toplum", "Ekonomi – Kaynaklar", "Demokrasi ve Yurttaşlık"],
-    "7": ["Kültür ve Miras", "İnsanlar ve Yerler", "Bilimsel Gelişmeler", "Ekonomi ve Kaynaklar", "Vatandaşlık ve Haklar", "Küresel Bağlantılar"],
-    "8": ["İnkılap Tarihi", "Kurtuluş Savaşı", "Cumhuriyet Dönemi", "Demokrasi Kültürü", "Toplum ve Değerler"]
-  },
-
-  ingilizce: {
-    "5": ["Hello!", "My Town", "Games and Hobbies", "Health", "The Animal Shelter", "My Daily Routine", "My House", "My Clothes"],
-    "6": ["Life", "Weather", "Occupations", "Downtown", "Holidays", "Environment", "Bookworms", "Democracy"],
-    "7": ["Appearance", "Sports", "Biographies", "Movies and Media", "Environment", "Celebrations", "Dreams", "Jobs and Future"],
-    "8": ["Friendship", "Teen Life", "In the Kitchen", "On the Phone", "The Internet", "Adventures", "Tourism", "Science"]
-  },
-
-  din: {
-    "5": ["İslam'ın Temel İnançları", "Peygamberimiz ve Ailesi", "İbadetler", "Ahlak ve Değerler", "Kuran’dan Mesajlar"],
-    "6": ["Allah İnancı", "Peygamberler ve Dualar", "İbadet Bilinci", "İslam Ahlakı", "Toplumsal Sorumluluk"],
-    "7": ["İnanç ve İbadet", "Peygamberimizin Hayatı", "Kur'an ve Mesajları", "Ahlak ve Davranış", "Din Kültürü"],
-    "8": ["İslam’da Kader", "İslam’da Sosyal Adalet", "Zekât ve Sadaka", "Hz. Muhammed’in Örnekliği", "Kur'an’ın Özellikleri"]
-  }
-};
-
-window.onload = function() {
-  // Dinleyiciler burada
-  document.getElementById("date").addEventListener("change", generateDateKey);
-  document.getElementById("classSelect").addEventListener("change", generateDateKey);
-  document.getElementById("homework").addEventListener("input", generateDateKey);
-};
-
-function generateWhatsappLink(name, statusIcon, statusLabel) {
-  const rawDate = document.getElementById("date").value;
-  const date = rawDate.split("T")[0]; // Sadece '2025-07-24' kalır, saat kısmı gider
-  const unit = document.getElementById("unitSelect").value;
-  const homework = document.getElementById("homework").value;
-
-  const teacherKey = document.getElementById("teacherSelect").value;
-  const teacherInfo = teachers[teacherKey];
-  const subject = teacherInfo?.subject || unit;
-  const teacherName = teacherInfo?.name || "Öğretmen";
-
-  if (!rawDate) {
-    Swal.fire({
-      icon: 'warning',
-      title: 'Tarih Eksik!',
-      text: 'Lütfen tarih giriniz.',
-      confirmButtonText: 'Tamam'
-    });
-    return;
-  }
-
-  const dateParts = rawDate.split("-");
-  const formattedDate = `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}`;
-
-  const message = `📢 *Fenomen Çocuk Kulübü - Ödev Bilgilendirme*\n\nSayın Velim,\n\n🎓 Öğrenci: *${name}*  \n👩‍🏫 Öğretmen: *${teacherName} (${subject})*  \n📅 Tarih: *${formattedDate}*  \n📚 Konu: *${unit}*  \n📝 Ödev: *${homework}*  \n📍 Durum: ${statusIcon} *${statusLabel}*\n\nSaygılarımızla,  \n*Fenomen Çocuk Kulübü*`;
-
-  const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
-  window.open(url, '_blank');
-}
-// Sınıf veya öğretmen değişince tetiklenecek
-function updateUnitOptions() {
-  const grade = document.getElementById("gradeLevel").value;
-  const branch = document.getElementById("teacherSelect").value;
-  const unitSelect = document.getElementById("unitSelect");
-
-  unitSelect.innerHTML = '<option value="">-- Ünite Seçin --</option>';
-
-  if (grade && branch && allUnits[branch] && allUnits[branch][grade]) {
-    allUnits[branch][grade].forEach(unit => {
-      const opt = document.createElement("option");
-      opt.value = unit;
-      opt.textContent = unit;
-      unitSelect.appendChild(opt);
-    });
-  }
-}
-
-// Olay dinleyicileri
-document.getElementById("gradeLevel").addEventListener("change", updateUnitOptions);
-document.getElementById("teacherSelect").addEventListener("change", updateUnitOptions);
-
-function saveFormToLocalStorage() {
-  if (Object.keys(teachers).length === 0) {
-    Swal.fire("Uyarı", "Öğretmen verisi henüz yüklenmedi. Lütfen birkaç saniye sonra tekrar deneyin.", "warning");
-    return;
-  }
-
-  generateDateKey(); // currentDateKey üretilir
-
-  if (!currentDateKey) {
-    Swal.fire("Hata", "Kayıt anahtarı oluşturulamadı. Lütfen tüm alanların dolu olduğundan emin olun.", "error");
-    return;
-  }
-
-  const formData = {
-    date: document.getElementById("date").value,
-    class: document.getElementById("classSelect").value,
-    grade: document.getElementById("gradeLevel").value,
-    unit: document.getElementById("unitSelect").value,
-    teacher: document.getElementById("teacherSelect").value,
-    homework: document.getElementById("homework").value.trim(),
-    students: Array.from(document.querySelectorAll(".student-card")).map(card => ({
-      name: card.querySelector(".student-name").innerText.replace("▪ ", ""),
-      status: card.querySelector(".student-status").value
-    }))
-  };
-
-  database.ref('forms/' + currentDateKey).set(formData)
-    .then(() => {
-      Swal.fire("Kaydedildi", `"${currentDateKey}" Firebase'e başarıyla kaydedildi.`, "success");
-    })
-    .catch((error) => {
-      console.error("Firebase'e kayıt hatası:", error);
-      Swal.fire("Hata", "Veri Firebase'e kaydedilemedi.", "error");
-    });
-}
-
-
-
-// 🔑 Güncelleme için global değişken tanımı
-let currentFormKey = null; // Yüklenen kayıt anahtarı
-let currentDateKey = "";   // Şu anki formdan oluşturulan anahtar
-
-function loadFormFromLocalStorage() {
-  database.ref('forms').once('value')
-    .then(snapshot => {
-      const data = snapshot.val();
-
-      if (!data) {
-        Swal.fire({
-          icon: 'info',
-          title: "Kayıt Bulunamadı",
-          text: "Firebase'de kayıtlı hiçbir form yok.",
-          confirmButtonText: "Tamam",
-          customClass: {
-            popup: 'wide-popup',
-            input: 'centered-select'
-          },
-          inputAttributes: {
-            style: 'font-size:15px;'
-          }
-        });
-        return;
+      if (!rawDate) {
+        Swal.fire({ icon:'warning', title:'Tarih Eksik!', text:'Lütfen tarih giriniz.'}); return;
       }
 
-      // 🔍 SADECE "Fen Bilimleri" ile başlayan kayıtları filtrele
-      const keys = Object.keys(data).filter(key => key.startsWith("Fen Bilimleri"));
+      const [y,m,d] = rawDate.split("-");
+      const formattedDate = `${d}.${m}.${y}`;
 
-      if (keys.length === 0) {
-        Swal.fire({
-          icon: 'info',
-          title: "Kayıt Bulunamadı",
-          text: "Fen Bilimleri'ne ait kayıt bulunamadı.",
-          confirmButtonText: "Tamam"
+      const message =
+`📢 *Fenomen Çocuk Kulübü - Ödev Bilgilendirme*
+
+Sayın Velim,
+
+🎓 Öğrenci: *${name}*
+👩‍🏫 Öğretmen: *${teacherName} (${subject})*
+📅 Tarih: *${formattedDate}*
+📚 Konu: *${unit}*
+📝 Ödev: *${homework}*
+📍 Durum: ${statusIcon} *${statusLabel}*
+
+Saygılarımızla,
+*Fenomen Çocuk Kulübü*`;
+
+      const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
+      window.open(url, '_blank');
+    }
+
+    function updateUnitOptions() {
+      const grade = document.getElementById("gradeLevel").value;
+      const branch = document.getElementById("teacherSelect").value;
+      const unitSelect = document.getElementById("unitSelect");
+      unitSelect.innerHTML = '<option value="">-- Ünite Seçin --</option>';
+      if (grade && branch && allUnits[branch] && allUnits[branch][grade]) {
+        allUnits[branch][grade].forEach(unit => {
+          const opt = document.createElement("option");
+          opt.value = unit; opt.textContent = unit; unitSelect.appendChild(opt);
         });
+      }
+    }
+    document.getElementById("gradeLevel").addEventListener("change", updateUnitOptions);
+    document.getElementById("teacherSelect").addEventListener("change", updateUnitOptions);
+
+    function saveFormToLocalStorage() {
+      if (Object.keys(teachers).length === 0) {
+        Swal.fire("Uyarı","Öğretmen verisi henüz yüklenmedi. Lütfen birkaç saniye sonra tekrar deneyin.","warning");
         return;
       }
+      generateDateKey();
+      if (!currentDateKey) { Swal.fire("Hata","Kayıt anahtarı oluşturulamadı. Lütfen tüm alanların dolu olduğundan emin olun.","error"); return; }
 
-      Swal.fire({
-        title: "Yüklenecek kayıt seçin",
-        input: "select",
-        inputOptions: keys.reduce((obj, key) => {
-          obj[key] = key;
-          return obj;
-        }, {}),
-        inputPlaceholder: "Kayıt seçin",
-        showCancelButton: true,
-        confirmButtonText: "Yükle",
-        cancelButtonText: "İptal",
-        customClass: {
-          popup: 'wide-popup',
-          input: 'centered-select'
-        },
-        inputAttributes: {
-          style: 'font-size:15px;'
-        }
-      }).then(result => {
-        if (result.isConfirmed) {
-          const selectedKey = result.value;
-          currentFormKey = selectedKey;
-          const formData = data[selectedKey];
-
-          // Form alanlarını doldur
-          document.getElementById("date").value = formData.date;
-          document.getElementById("classSelect").value = formData.class;
-          document.getElementById("gradeLevel").value = formData.grade;
-          document.getElementById("teacherSelect").value = formData.teacher;
-          document.getElementById("homework").value = formData.homework;
-
-          updateUnitOptions();
-
-          setTimeout(() => {
-            document.getElementById("unitSelect").value = formData.unit;
-          }, 50);
-
-          document.getElementById("classSelect").dispatchEvent(new Event("change"));
-
-          // Öğrenci durumlarını isme göre eşleştir
-          setTimeout(() => {
-            const cards = document.querySelectorAll(".student-card");
-            const notFoundStudents = [];
-
-            formData.students.forEach(savedStudent => {
-              const matchingCard = Array.from(cards).find(card => {
-                const name = card.querySelector(".student-name").innerText.replace("▪ ", "");
-                return name === savedStudent.name;
-              });
-
-              if (matchingCard) {
-                matchingCard.querySelector(".student-status").value = savedStudent.status;
-              } else {
-                notFoundStudents.push(savedStudent.name);
-              }
-            });
-
-            if (notFoundStudents.length > 0) {
-              Swal.fire({
-                icon: "info",
-                title: "Listede olmayan öğrenciler",
-                html: `<b>${notFoundStudents.length}</b> öğrenci listede bulunamadı:<br><br><code>${notFoundStudents.join("<br>")}</code>`,
-                customClass: { popup: 'wide-popup' }
-              });
-            }
-          }, 150);
-        }
-      });
-    })
-    .catch(error => {
-      console.error("Firebase'den veri alınamadı:", error);
-      Swal.fire("Hata", "Veriler yüklenirken bir sorun oluştu.", "error");
-    });
-}
-
-
-
-
-function clearLocalStorageForm() {
-  database.ref('forms').once('value')
-    .then(snapshot => {
-      const data = snapshot.val();
-
-      if (!data) {
-        Swal.fire({
-          icon: 'info',
-          title: "Kayıt Yok",
-          text: "Silinecek kayıt bulunamadı.",
-          confirmButtonText: "Tamam",
-          customClass: { popup: 'wide-popup' }
-        });
-        return;
-      }
-
-      // 🔍 SADECE "Fen Bilimleri" ile başlayan kayıtları göster (tekli seçimde)
-      const keys = Object.keys(data).filter(key => key.startsWith("Fen Bilimleri"));
-
-      if (keys.length === 0) {
-        Swal.fire({
-          icon: 'info',
-          title: "Kayıt Yok",
-          text: "Fen Bilimleri'ne ait silinebilir kayıt bulunamadı.",
-          confirmButtonText: "Tamam",
-          customClass: { popup: 'wide-popup' }
-        });
-        return;
-      }
-
-      Swal.fire({
-        title: "Silinecek kaydı seçin",
-        input: "select",
-        inputOptions: keys.reduce((obj, key) => {
-          obj[key] = key;
-          return obj;
-        }, {}),
-        inputPlaceholder: "Silinecek kayıt seçin",
-        showCancelButton: true,
-        confirmButtonText: "Sil",
-        cancelButtonText: "İptal",
-        showDenyButton: true,
-        denyButtonText: "🧨 Toplu Sil",
-        customClass: {
-          popup: 'wide-popup',
-          input: 'centered-select'
-        }
-      }).then(result => {
-        if (result.isConfirmed) {
-          const selectedKey = result.value;
-          database.ref('forms/' + selectedKey).remove()
-            .then(() => {
-              Swal.fire({
-                icon: 'success',
-                title: "Silindi",
-                text: `"${selectedKey}" kaydı Firebase'den silindi.`,
-                customClass: { popup: 'wide-popup' }
-              });
-            })
-            .catch(error => {
-              console.error("Firebase silme hatası:", error);
-              Swal.fire("Hata", "Kayıt silinirken hata oluştu.", "error");
-            });
-
-        } else if (result.isDenied) {
-          Swal.fire({
-            icon: 'warning',
-            title: 'Emin misiniz?',
-            text: 'Tüm kayıtlar kalıcı olarak silinecek!',
-            showCancelButton: true,
-            confirmButtonText: 'Evet, Sil',
-            cancelButtonText: 'Vazgeç'
-          }).then(confirmResult => {
-            if (confirmResult.isConfirmed) {
-              // 🔥 Quiz ile başlamayanları sil
-              const keysToDelete = Object.keys(data).filter(key => !key.startsWith("Quiz"));
-              const updates = {};
-              keysToDelete.forEach(key => {
-                updates[`forms/${key}`] = null;
-              });
-
-              database.ref().update(updates)
-                .then(() => {
-                  Swal.fire({
-                    icon: 'success',
-                    title: "Hepsi Silindi",
-                    text: `"${keysToDelete.length}" kayıt silindi.`,
-                    customClass: { popup: 'wide-popup' }
-                  });
-                })
-                .catch(error => {
-                  console.error("Toplu silme hatası:", error);
-                  Swal.fire("Hata", "Toplu silme başarısız.", "error");
-                });
-            }
-          });
-        }
-      });
-    })
-    .catch(error => {
-      console.error("Firebase okuma hatası:", error);
-      Swal.fire("Hata", "Veriler alınırken bir hata oluştu.", "error");
-    });
-}
-
-
-
-function updateFormInLocalStorage() {
-  if (!currentFormKey) {
-    Swal.fire("Güncelleme Başarısız", "Lütfen önce bir kayıt yükleyin.", "error");
-    return;
-  }
-
-  Swal.fire({
-    title: "Güncellemek istediğinize emin misiniz?",
-    text: `"${currentFormKey}" üzerine yazılacak.`,
-    icon: "question",
-    showCancelButton: true,
-    confirmButtonText: "Evet, Güncelle",
-    cancelButtonText: "Vazgeç"
-  }).then(result => {
-    if (result.isConfirmed) {
       const formData = {
         date: document.getElementById("date").value,
         class: document.getElementById("classSelect").value,
@@ -953,171 +555,231 @@ function updateFormInLocalStorage() {
         }))
       };
 
-      database.ref('forms/' + currentFormKey).set(formData)
-        .then(() => {
-          Swal.fire("Güncellendi", `"${currentFormKey}" Firebase üzerinde başarıyla güncellendi.`, "success");
-        })
-        .catch((error) => {
-          console.error("Firebase güncelleme hatası:", error);
-          Swal.fire("Hata", "Güncelleme sırasında bir hata oluştu.", "error");
-        });
+      database.ref('forms/' + currentDateKey).set(formData)
+        .then(() => Swal.fire("Kaydedildi", `"${currentDateKey}" Firebase'e başarıyla kaydedildi.`, "success"))
+        .catch((error) => { console.error("Firebase'e kayıt hatası:", error); Swal.fire("Hata","Veri Firebase'e kaydedilemedi.","error"); });
     }
+
+    function loadFormFromLocalStorage() {
+      database.ref('forms').once('value')
+        .then(snapshot => {
+          const data = snapshot.val();
+          if (!data) { Swal.fire({ icon:'info', title:"Kayıt Bulunamadı", text:"Firebase'de kayıtlı hiçbir form yok.", confirmButtonText:"Tamam", customClass:{ popup:'wide-popup', input:'centered-select' } }); return; }
+
+// Filtreledikten sonra sıralıyoruz
+const keys = Object.keys(data)
+  .filter(key => key.startsWith("Fen Bilimleri"))
+  .sort((a, b) => {
+    const dateA = new Date(data[a].date);
+    const dateB = new Date(data[b].date);
+    return dateB - dateA; // büyükten küçüğe => en yeni başta
   });
-}
 
+          if (keys.length === 0) { Swal.fire({ icon:'info', title:"Kayıt Bulunamadı", text:"Fen Bilimleri'ne ait kayıt bulunamadı.", confirmButtonText:"Tamam" }); return; }
 
-function sanitizeKeyPart(str) {
-  return String(str || "")
-    .replace(/[.#$/\[\]]/g, "-")   // Firebase yasaklı karakterleri tireye çevir
-    .replace(/\s+/g, " ")          // çoklu boşlukları sadeleştir
-    .trim();
-}
+          Swal.fire({
+            title: "Yüklenecek kayıt seçin",
+            input: "select",
+            inputOptions: keys.reduce((o,k)=> (o[k]=k,o),{}),
+            inputPlaceholder: "Kayıt seçin",
+            showCancelButton: true, confirmButtonText: "Yükle", cancelButtonText: "İptal",
+            customClass:{ popup:'wide-popup', input:'centered-select' }, inputAttributes:{ style:'font-size:15px;' }
+          }).then(result => {
+            if (result.isConfirmed) {
+              const selectedKey = result.value;
+              currentFormKey = selectedKey;
+              const formData = data[selectedKey];
 
-function generateDateKey() {
-  const raw = document.getElementById("date").value;
-  const date = raw.includes("T") ? raw.split("T")[0] : raw;
-  const selectedClass = document.getElementById("classSelect").value;
-  const homework = document.getElementById("homework").value.trim();
-  const teacherKey = document.getElementById("teacherSelect").value;
+              document.getElementById("date").value = formData.date;
+              document.getElementById("classSelect").value = formData.class;
+              document.getElementById("gradeLevel").value = formData.grade;
+              document.getElementById("teacherSelect").value = formData.teacher;
+              document.getElementById("homework").value = formData.homework;
 
-  const subject = teachers[teacherKey]?.subject || "";
+              updateUnitOptions();
+              setTimeout(()=>{ document.getElementById("unitSelect").value = formData.unit; }, 50);
+              document.getElementById("classSelect").dispatchEvent(new Event("change"));
 
-  if (!subject || !date || !selectedClass || !homework) {
-    currentDateKey = "";
-    return;
-  }
+              setTimeout(() => {
+                const cards = document.querySelectorAll(".student-card");
+                const notFound = [];
+                formData.students.forEach(saved => {
+                  const match = Array.from(cards).find(card => card.querySelector(".student-name").innerText.replace("▪ ","") === saved.name);
+                  if (match) match.querySelector(".student-status").value = saved.status;
+                  else notFound.push(saved.name);
+                });
+                if (notFound.length) {
+                  Swal.fire({ icon:"info", title:"Listede olmayan öğrenciler", html:`<b>${notFound.length}</b> öğrenci listede bulunamadı:<br><br><code>${notFound.join("<br>")}</code>`, customClass:{ popup:'wide-popup' } });
+                }
+              }, 150);
+            }
+          });
+        })
+        .catch(error => { console.error("Firebase'den veri alınamadı:", error); Swal.fire("Hata","Veriler yüklenirken bir sorun oluştu.","error"); });
+    }
 
-  const keySubject = sanitizeKeyPart(subject);
-  const keyClass   = sanitizeKeyPart(selectedClass);
-  const keyDate    = sanitizeKeyPart(date);
-  const keyHw      = sanitizeKeyPart(homework);
+    function clearLocalStorageForm() {
+      database.ref('forms').once('value')
+        .then(snapshot => {
+          const data = snapshot.val();
+          if (!data) { Swal.fire({ icon:'info', title:"Kayıt Yok", text:"Silinecek kayıt bulunamadı.", confirmButtonText:"Tamam", customClass:{ popup:'wide-popup' } }); return; }
 
-  // 🆕 Rastgele kısa ID (örnek: ab12, u9z3...)
-  const randomId = Math.random().toString(36).substring(2, 6);
+const keys = Object.keys(data)
+  .filter(key => key.startsWith("Fen Bilimleri"))
+  .sort((a, b) => {
+    const dateA = new Date(data[a].date);
+    const dateB = new Date(data[b].date);
+    return dateB - dateA; // büyükten küçüğe => en yeni başta
+  });
+          if (keys.length === 0) { Swal.fire({ icon:'info', title:"Kayıt Yok", text:"Fen Bilimleri'ne ait silinebilir kayıt bulunamadı.", confirmButtonText:"Tamam", customClass:{ popup:'wide-popup' } }); return; }
 
-  // 🔑 Final anahtar
-  currentDateKey = `${keySubject} - ${keyDate} - ${keyClass} - ${keyHw} - ${randomId}`;
-}
+          Swal.fire({
+            title: "Silinecek kaydı seçin",
+            input: "select",
+            inputOptions: keys.reduce((o,k)=> (o[k]=k,o),{}),
+            inputPlaceholder: "Silinecek kayıt seçin",
+            showCancelButton: true,
+            confirmButtonText: "Sil", cancelButtonText: "İptal",
+            showDenyButton: true, denyButtonText: "🧨 Toplu Sil",
+            customClass:{ popup:'wide-popup', input:'centered-select' }
+          }).then(result => {
+            if (result.isConfirmed) {
+              const selectedKey = result.value;
+              database.ref('forms/' + selectedKey).remove()
+                .then(()=> Swal.fire({ icon:'success', title:"Silindi", text:`"${selectedKey}" kaydı Firebase'den silindi.`, customClass:{ popup:'wide-popup' } }))
+                .catch(err => { console.error("Firebase silme hatası:", err); Swal.fire("Hata","Kayıt silinirken hata oluştu.","error"); });
+            } else if (result.isDenied) {
+              Swal.fire({
+                icon:'warning', title:'Emin misiniz?', text:'Tüm kayıtlar kalıcı olarak silinecek!',
+                showCancelButton:true, confirmButtonText:'Evet, Sil', cancelButtonText:'Vazgeç'
+              }).then(confirm => {
+                if (confirm.isConfirmed) {
+                  const keysToDelete = Object.keys(data).filter(key => !key.startsWith("Quiz"));
+                  const updates = {}; keysToDelete.forEach(k => updates[`forms/${k}`] = null);
+                  database.ref().update(updates)
+                    .then(()=> Swal.fire({ icon:'success', title:"Hepsi Silindi", text:`"${keysToDelete.length}" kayıt silindi.`, customClass:{ popup:'wide-popup' } }))
+                    .catch(err => { console.error("Toplu silme hatası:", err); Swal.fire("Hata","Toplu silme başarısız.","error"); });
+                }
+              });
+            }
+          });
+        })
+        .catch(error => { console.error("Firebase okuma hatası:", error); Swal.fire("Hata","Veriler alınırken bir hata oluştu.","error"); });
+    }
 
-
-
-
-function openStudentModal(studentName) {
-  // 🔒 Öğretmen verisi yüklenmemişse uyarı ver
-  if (Object.keys(teachers).length === 0) {
-    Swal.fire({
-      icon: 'warning',
-      title: 'Veri Hazırlanıyor',
-      text: 'Öğretmen verileri henüz yüklenmedi. Lütfen bir öğretmen seçiniz',
-    });
-    return;
-  }
-
-  const oneMonthAgo = new Date();
-  oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
-
-  database.ref('forms').once('value')
-    .then(snapshot => {
-      const allForms = snapshot.val();
-      if (!allForms) {
-        Swal.fire({
-          icon: 'info',
-          title: 'Veri Yok',
-          text: 'Hiçbir kayıt bulunamadı.',
-        });
-        return;
-      }
-
-      const reports = [];
-
-      Object.entries(allForms).forEach(([key, data]) => {
-        const formDate = new Date(data.date);
-        if (isNaN(formDate.getTime()) || formDate < oneMonthAgo) return;
-
-        const match = data.students?.find(s => s.name === studentName);
-        if (!match) return;
-
-        // 🛠️ Öğretmen filtrelemesi (yalnızca seçilmişse uygula)
-        const selectedTeacher = document.getElementById("teacherSelect").value;
-        if (selectedTeacher && data.teacher !== selectedTeacher) return;
-
-        const formattedDate = new Date(data.date).toLocaleDateString('tr-TR');
-        const teacherName = teachers[data.teacher]?.name || data.teacher || "-";
-        const subject = teachers[data.teacher]?.subject || "-";
-
-        reports.push({
-          date: formattedDate,
-          unit: data.unit,
-          homework: data.homework,
-          status: match.status,
-          statusLabel: getStatusLabel(match.status),
-          teacher: teacherName,
-          subject: subject
-        });
-      });
-
-      if (reports.length === 0) {
-        Swal.fire({
-          icon: 'info',
-          title: 'Kayıt Bulunamadı',
-          text: `${studentName} için son 1 ayda kayıtlı bir ödev verisi bulunamadı.`,
-        });
-        return;
-      }
-
-      const sample = reports[0];
-      const msgHeader = `📢 *Fenomen Çocuk Kulübü - Ödev Takip Raporu*\n\nSayın Velimiz,\n\n🎓 Öğrenciniz: *${studentName}*\n👩‍🏫 Öğretmen: *${sample.teacher}*\n📌 Ders: *${sample.subject}*\n🗓️ Dönem: *Son 1 Ay*\n\n📚 *Ödev Katılım Listesi:*\n─────────────────────────────\n`;
-
-      const msgBody = reports.map(r =>
-        `📅 *${r.date}*\n📝 Ödev: *${r.homework}*\n📘 Ünite: *${r.unit}*\n📌 Durum: ${r.statusLabel}\n`
-      ).join('\n');
-
-      const msgFooter = '─────────────────────────────\n\n📨 Geri bildirim ve detaylı bilgi için öğretmeninizle iletişime geçebilirsiniz.\nSaygılarımızla,\n*Fenomen Çocuk Kulübü*';
-
-      const fullMessage = `${msgHeader}${msgBody}${msgFooter}`;
-
+    function updateFormInLocalStorage() {
+      if (!currentFormKey) { Swal.fire("Güncelleme Başarısız","Lütfen önce bir kayıt yükleyin.","error"); return; }
       Swal.fire({
-        title: studentName,
-        html: `<pre style="text-align:left;white-space:pre-wrap;font-size:13px;padding:10px 0">${fullMessage}</pre>`,
-        showCancelButton: true,
-        confirmButtonText: '📤 Gönder',
-        cancelButtonText: 'Kapat',
-        customClass: { popup: 'wide-popup' }
+        title:"Güncellemek istediğinize emin misiniz?",
+        text:`"${currentFormKey}" üzerine yazılacak.`,
+        icon:"question", showCancelButton:true,
+        confirmButtonText:"Evet, Güncelle", cancelButtonText:"Vazgeç"
       }).then(result => {
         if (result.isConfirmed) {
-          const whatsappURL = `https://wa.me/?text=${encodeURIComponent(fullMessage)}`;
-          window.open(whatsappURL, '_blank');
+          const formData = {
+            date: document.getElementById("date").value,
+            class: document.getElementById("classSelect").value,
+            grade: document.getElementById("gradeLevel").value,
+            unit: document.getElementById("unitSelect").value,
+            teacher: document.getElementById("teacherSelect").value,
+            homework: document.getElementById("homework").value.trim(),
+            students: Array.from(document.querySelectorAll(".student-card")).map(card => ({
+              name: card.querySelector(".student-name").innerText.replace("▪ ", ""),
+              status: card.querySelector(".student-status").value
+            }))
+          };
+          database.ref('forms/' + currentFormKey).set(formData)
+            .then(()=> Swal.fire("Güncellendi", `"${currentFormKey}" Firebase üzerinde başarıyla güncellendi.`, "success"))
+            .catch((error)=>{ console.error("Firebase güncelleme hatası:", error); Swal.fire("Hata","Güncelleme sırasında bir hata oluştu.","error"); });
         }
       });
-    })
-    .catch(error => {
-      console.error("Veri çekme hatası:", error);
-      Swal.fire("Hata", "Veriler alınamadı.", "error");
-    });
-}
+    }
 
+    function sanitizeKeyPart(str) {
+      return String(str || "").replace(/[.#$/\[\]]/g, "-").replace(/\s+/g, " ").trim();
+    }
 
-function getStatusLabel(status) {
-  switch (status) {
-    case 'yaptı': return '✅ Yaptı';
-    case 'yapmadı': return '❌ Yapmadı';
-    case 'eksik': return '❗ Eksik';
-    case 'gelmedi': return '⛔ Gelmedi';
-    default: return '❓ Bilinmiyor';
-  }
-}
+    function generateDateKey() {
+      const raw = document.getElementById("date").value;
+      const date = raw.includes("T") ? raw.split("T")[0] : raw;
+      const selectedClass = document.getElementById("classSelect").value;
+      const homework = document.getElementById("homework").value.trim();
+      const teacherKey = document.getElementById("teacherSelect").value;
+      const subject = teachers[teacherKey]?.subject || "";
+      if (!subject || !date || !selectedClass || !homework) { currentDateKey = ""; return; }
+      const keySubject = sanitizeKeyPart(subject);
+      const keyClass   = sanitizeKeyPart(selectedClass);
+      const keyDate    = sanitizeKeyPart(date);
+      const keyHw      = sanitizeKeyPart(homework);
+      const randomId = Math.random().toString(36).substring(2, 6);
+      currentDateKey = `${keySubject} - ${keyDate} - ${keyClass} - ${keyHw} - ${randomId}`;
+    }
 
-function refreshForm() {
-  // Form giriş alanlarını temizle
-  document.getElementById("date").value = "";
-  document.getElementById("teacherSelect").value = "";
-  document.getElementById("gradeLevel").value = "";
-  document.getElementById("unitSelect").innerHTML = '<option value="">-- Ünite Seçin --</option>';
-  document.getElementById("homework").value = "";
-  document.getElementById("classSelect").value = "";
-  document.getElementById("students").innerHTML = "";
-}
+    function getStatusLabel(status) {
+      switch (status) {
+        case 'yaptı': return '✅ Yaptı';
+        case 'yapmadı': return '❌ Yapmadı';
+        case 'eksik': return '❗ Eksik';
+        case 'gelmedi': return '⛔ Gelmedi';
+        default: return '❓ Bilinmiyor';
+      }
+    }
 
-</script>
+    function openStudentModal(studentName) {
+      if (Object.keys(teachers).length === 0) {
+        Swal.fire({ icon:'warning', title:'Veri Hazırlanıyor', text:'Öğretmen verileri henüz yüklenmedi. Lütfen bir öğretmen seçiniz' });
+        return;
+      }
+      const oneMonthAgo = new Date(); oneMonthAgo.setMonth(oneMonthAgo.getMonth()-1);
+      database.ref('forms').once('value')
+        .then(snapshot => {
+          const allForms = snapshot.val();
+          if (!allForms) { Swal.fire({ icon:'info', title:'Veri Yok', text:'Hiçbir kayıt bulunamadı.' }); return; }
+
+          const reports = [];
+          Object.entries(allForms).forEach(([key, data]) => {
+            const formDate = new Date(data.date);
+            if (isNaN(formDate.getTime()) || formDate < oneMonthAgo) return;
+            const match = data.students?.find(s => s.name === studentName); if (!match) return;
+            const selectedTeacher = document.getElementById("teacherSelect").value;
+            if (selectedTeacher && data.teacher !== selectedTeacher) return;
+
+            const formattedDate = new Date(data.date).toLocaleDateString('tr-TR');
+            const teacherName = teachers[data.teacher]?.name || data.teacher || "-";
+            const subject = teachers[data.teacher]?.subject || "-";
+            reports.push({ date: formattedDate, unit: data.unit, homework: data.homework, status: match.status, statusLabel: getStatusLabel(match.status), teacher: teacherName, subject });
+          });
+
+          if (!reports.length) { Swal.fire({ icon:'info', title:'Kayıt Bulunamadı', text:`${studentName} için son 1 ayda kayıtlı bir ödev verisi bulunamadı.` }); return; }
+
+          const sample = reports[0];
+          const msgHeader = `📢 *Fenomen Çocuk Kulübü - Ödev Takip Raporu*\n\nSayın Velimiz,\n\n🎓 Öğrenciniz: *${studentName}*\n👩‍🏫 Öğretmen: *${sample.teacher}*\n📌 Ders: *${sample.subject}*\n🗓️ Dönem: *Son 1 Ay*\n\n📚 *Ödev Katılım Listesi:*\n─────────────────────────────\n`;
+          const msgBody = reports.map(r => `📅 *${r.date}*\n📝 Ödev: *${r.homework}*\n📘 Ünite: *${r.unit}*\n📌 Durum: ${r.statusLabel}\n`).join('\n');
+          const msgFooter = '─────────────────────────────\n\n📨 Geri bildirim ve detaylı bilgi için öğretmeninizle iletişime geçebilirsiniz.\nSaygılarımızla,\n*Fenomen Çocuk Kulübü*';
+          const fullMessage = `${msgHeader}${msgBody}${msgFooter}`;
+
+          Swal.fire({
+            title: studentName,
+            html: `<pre style="text-align:left;white-space:pre-wrap;font-size:13px;padding:10px 0">${fullMessage}</pre>`,
+            showCancelButton: true, confirmButtonText: '📤 Gönder', cancelButtonText: 'Kapat',
+            customClass: { popup: 'wide-popup' }
+          }).then(result => { if (result.isConfirmed) { const whatsappURL = `https://wa.me/?text=${encodeURIComponent(fullMessage)}`; window.open(whatsappURL, '_blank'); }});
+        })
+        .catch(error => { console.error("Veri çekme hatası:", error); Swal.fire("Hata", "Veriler alınamadı.", "error"); });
+    }
+
+    function refreshForm() {
+      document.getElementById("date").value = "";
+      document.getElementById("teacherSelect").value = "";
+      document.getElementById("gradeLevel").value = "";
+      document.getElementById("unitSelect").innerHTML = '<option value="">-- Ünite Seçin --</option>';
+      document.getElementById("homework").value = "";
+      document.getElementById("classSelect").value = "";
+      document.getElementById("students").innerHTML = "";
+    }
+  </script>
+
+  <!-- Bootstrap JS (opsiyonel ama dropdown vb. için iyi olur) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
